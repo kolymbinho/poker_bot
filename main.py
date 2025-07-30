@@ -1,21 +1,19 @@
-from telegram.ext import ApplicationBuilder
-from handlers import setup_handlers
-from dotenv import load_dotenv
+from telegram.ext import ApplicationBuilder, CommandHandler
+from telegram import Update
+from telegram.ext import ContextTypes
 import os
 
-load_dotenv()
 TOKEN = os.getenv("TELEGRAM_TOKEN")
-PORT = int(os.getenv("PORT", 10000))
-RENDER_URL = os.getenv("RENDER_URL")
+
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("Бот работает!")
 
 app = ApplicationBuilder().token(TOKEN).build()
-setup_handlers(app)
 
-if __name__ == "__main__":
-    print("Poker Bot запущен!")
-    app.run_webhook(
-        listen="0.0.0.0",
-        port=PORT,
-        url_path=TOKEN,
-        webhook_url=f"{RENDER_URL}/{TOKEN}"
-    )
+app.add_handler(CommandHandler("start", start))
+
+app.run_webhook(
+    listen="0.0.0.0",
+    port=int(os.getenv("PORT", default=10000)),
+    webhook_url=os.getenv("RENDER_URL") + "/" + TOKEN
+)
